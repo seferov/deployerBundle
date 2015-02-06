@@ -48,8 +48,8 @@ class DeployCommand extends ContainerAwareCommand
         $versionsDir = $server['connection']['path'].'/versions/';
 
         $sshClient = $this->getContainer()->get('seferov_deployer.ssh_client');
-        $sshClient->setOutput($output);
         $sshClient->connect($server['connection']);
+        $sshClient->setOutput($output);
 
         // Download the project
         $sshClient->exec(sprintf('rm -rf %s', $versionsDir . 'ondeck/'));
@@ -70,8 +70,7 @@ class DeployCommand extends ContainerAwareCommand
         // Server parameters
         $sshClient->exec(sprintf('cp %s/parameters.yml %s/app/config/parameters.yml', $server['connection']['config_path'], $appDir));
 
-        // Download composer
-        $sshClient->exec('php -r "readfile(\'https://getcomposer.org/installer\');" | php && mv composer.phar /usr/local/bin/composer');
+        // Update composer
         $sshClient->exec('composer self-update');
 
         // Install dependencies - composer install

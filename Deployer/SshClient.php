@@ -1,6 +1,7 @@
 <?php
 
 namespace Seferov\DeployerBundle\Deployer;
+
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -93,6 +94,15 @@ class SshClient
         }
 
         return $lines;
+    }
+
+    /**
+     * @param $file
+     * @param $path
+     */
+    public function upload($file, $path)
+    {
+        ssh2_scp_send($this->stream, $file, $path);
     }
 
     /**
