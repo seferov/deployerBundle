@@ -1,0 +1,23 @@
+{
+  "name": "seferov/deployer-bundle",
+  "type": "symfony-bundle",
+  "description": "Symfony2 Project Deployer",
+  "keywords": ["symfony2", "deployer", "deploy", "deployment"],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Farhad Safarov",
+      "homepage": "http://ferhad.in"
+    }
+  ],
+  "minimum-stability": "dev",
+  "require": {
+    "php": ">=5.4",
+    "symfony/symfony": "~2.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "Seferov\\DeployerBundle\\": ""
+    }
+  }
+}
