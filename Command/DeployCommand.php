@@ -68,7 +68,7 @@ class DeployCommand extends ContainerAwareCommand
         $sshClient->exec(sprintf('cd %s && chmod 777 -R app/cache app/logs', $appDir));
 
         // Server parameters
-        $sshClient->exec(sprintf('cp %s/parameters.yml %s/app/config/parameters.yml', $server['connection']['config_path'], $appDir));
+        $sshClient->exec(sprintf('cp %s/config/parameters.yml %s/app/config/parameters.yml', $server['connection']['path'], $appDir));
 
         // Update composer
         $sshClient->exec('composer self-update');

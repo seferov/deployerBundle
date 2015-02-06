@@ -38,7 +38,6 @@ class Configuration implements ConfigurationInterface
                                     ->scalarNode('username')->isRequired()->end()
                                     ->scalarNode('password')->isRequired()->end()
                                     ->scalarNode('path')->isRequired()->defaultValue('/var/www')->end()
-                                    ->scalarNode('config_path')->isRequired()->defaultValue('/var/www/config')->end()
                                 ->end()
                             ->end()
                         ->end()

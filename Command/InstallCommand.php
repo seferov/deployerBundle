@@ -51,8 +51,8 @@ class InstallCommand extends ContainerAwareCommand
 
         // Install config
         $parametersFile = $this->getContainer()->getParameter('kernel.root_dir') . '/config/parameters.yml';
-        $sshClient->exec(sprintf('mkdir -p %s', $server['connection']['config_path']));
-        $sshClient->upload($parametersFile, $server['connection']['config_path'] . '/parameters.yml');
+        $sshClient->exec(sprintf('mkdir -p %s/config', $server['connection']['path']));
+        $sshClient->upload($parametersFile, $server['connection']['path'] . '/config/parameters.yml');
 
         // Init versions
         $sshClient->exec('mkdir -p %s/versions', $server['connection']['path']);
