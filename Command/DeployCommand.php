@@ -57,12 +57,16 @@ class DeployCommand extends ContainerAwareCommand
 
         // Versioner
         $versioner = new Versioner($versionsDir, $sshClient);
-        $version = $versioner->getVersion();
-        $appDir = $versionsDir . $version;
-        $output->writeln(sprintf('<comment>VERSION: %s</comment>', $version));
+        $version = $versioner->getAppVersion();
+        $currentVersion = $versioner->getCurrentVersion();
 
-        $sshClient->exec(sprintf('rm -rf %s', $appDir));
-        $sshClient->exec(sprintf('mv %s %s', $versionsDir . 'ondeck', $versionsDir . $version));
+        $output->writeln(sprintf('<comment>Version: %s</comment>', $version));
+        if ($version == $currentVersion) {
+            $output->writeln('<comment>You already have deployed the latest version.</comment>');
+            return;
+        }
+
+        $appDir = $versionsDir . 'ondeck';
 
         // Make cache and log folders writable
         $sshClient->exec(sprintf('cd %s && chmod 777 -R app/cache app/logs', $appDir));
@@ -70,14 +74,28 @@ class DeployCommand extends ContainerAwareCommand
         // Server parameters
         $sshClient->exec(sprintf('cp %s/config/parameters.yml %s/app/config/parameters.yml', $server['connection']['path'], $appDir));
 
+        if ($currentVersion) {
+            // Copy previous versions vendor
+            $sshClient->exec(sprintf('cp -rf %s/vendor %s/', $versionsDir . $currentVersion, $appDir));
+        }
+
         // Update composer
         $sshClient->exec('composer self-update');
 
         // Install dependencies - composer install
         $sshClient->exec(sprintf('cd %s && yes | composer install --optimize-autoloader', $appDir));
 
+        // Post-deployment tasks
+//        $sshClient->exec(sprintf('php %s/app/console cache:clear --env=prod --no-debug', $appDir));
+//        $sshClient->exec(sprintf('cd %s && app/console assetic:dump --env=prod --no-debug', $appDir));
+
+        // Move from ondeck to versioned folder
+        $appDir = $versionsDir . $version;
+        $sshClient->exec(sprintf('mv %s %s', $versionsDir . 'ondeck', $appDir));
+
         // Symlink
         $sshClient->exec(sprintf('rm %s/web', $server['connection']['path']));
         $sshClient->exec(sprintf('ln -s %s/web %s', $appDir, $server['connection']['path']));
+        $versioner->setNewVersion($version);
     }
 }

@@ -28,9 +28,14 @@ class Versioner
     {
         $this->path = $path;
         $this->sshClient = $sshClient;
+        $this->versionsFile = $this->path . 'versions.txt';
     }
 
-    public function getVersion()
+    /**
+     * @return mixed
+     * @throws \Exception
+     */
+    public function getAppVersion()
     {
         $out = $this->sshClient->exec("tail '{$this->path}/ondeck/.git/refs/heads/master'");
         if (!count($out)) {
@@ -38,5 +43,37 @@ class Versioner
         }
 
         return $out[0];
+    }
+
+    /**
+     * @param $version
+     */
+    public function setNewVersion($version)
+    {
+        // Add version to the top of file
+        $this->sshClient->exec("echo '{$version}' | cat - ".$this->versionsFile." > temp && mv temp ".$this->versionsFile);
+    }
+
+    /**
+     * @return mixed
+     * @throws \Exception
+     */
+    public function getPreviousVersion()
+    {
+        $versions = $this->sshClient->exec(sprintf('head -2 %s', $this->versionsFile));
+        return end($versions);
+    }
+
+    /**
+     * @return bool
+     * @throws \Exception
+     */
+    public function getCurrentVersion()
+    {
+        $versions = $this->sshClient->exec(sprintf('head -1 %s', $this->versionsFile));
+        if (count($versions)) {
+            return $versions[0];
+        }
+        return false;
     }
 }

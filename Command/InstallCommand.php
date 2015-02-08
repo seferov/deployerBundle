@@ -56,6 +56,7 @@ class InstallCommand extends ContainerAwareCommand
 
         // Init versions
         $sshClient->exec('mkdir -p %s/versions', $server['connection']['path']);
+        $sshClient->exec(sprintf('touch %s/versions/versions.txt', $server['connection']['path']));
 
         // Download and install composer
         $sshClient->exec('php -r "readfile(\'https://getcomposer.org/installer\');" | php && mv composer.phar /usr/local/bin/composer');
