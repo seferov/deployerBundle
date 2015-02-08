@@ -68,10 +68,6 @@ class DeployCommand extends BaseCommand
         // Install dependencies - composer install
         $this->sshClient->exec(sprintf('cd %s && yes | composer install --optimize-autoloader', $appDir));
 
-        // Post-deployment tasks
-//        $sshClient->exec(sprintf('php %s/app/console cache:clear --env=prod --no-debug', $appDir));
-//        $sshClient->exec(sprintf('cd %s && app/console assetic:dump --env=prod --no-debug', $appDir));
-
         // Move from ondeck to versioned folder
         $appDir = $this->versionsDir . $version;
         $this->sshClient->exec(sprintf('mv %s %s', $this->versionsDir . 'ondeck', $appDir));
