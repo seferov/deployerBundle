@@ -1,32 +1,31 @@
 <?php
 
-namespace Seferov\DeployerBundle\Command;
+/*
+ * This file is part of the SeferovDeployerBundle package.
+ *
+ * (c) Farhad Safarov <http://ferhad.in>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Intl\Exception\InvalidArgumentException;
-use Seferov\DeployerBundle\Deployer\Versioner;
+namespace Seferov\DeployerBundle\Command;
 
 /**
  * Class RollbackCommand
  * @package Seferov\DeployerBundle\Command
+ * @author Farhad Safarov <http://ferhad.in>
  */
-class RollbackCommand extends ContainerAwareCommand
+class RollbackCommand extends BaseCommand
 {
     /**
      * {@inheritdoc}
      */
     protected function configure()
     {
+        parent::configure();
         $this
             ->setName('deployer:rollback')
-            ->addArgument(
-                'server_name',
-                InputArgument::REQUIRED,
-                'To which server do you want to rollback?'
-            )
             ->setDescription('Rollbacks to the previous version')
         ;
     }
@@ -34,32 +33,15 @@ class RollbackCommand extends ContainerAwareCommand
     /**
      * {@inheritdoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function executeCommand()
     {
-        // Get configuration
-        $serverName = $input->getArgument('server_name');
-        $config = $this->getContainer()->getParameter('seferov_deployer_config');
-
-        if (!array_key_exists($serverName, $config['servers'])) {
-            throw new InvalidArgumentException(sprintf('There is no such server named "%s" in the configuration', $serverName));
-        }
-
-        $server = $config['servers'][$serverName];
-        $versionsDir = $server['connection']['path'].'/versions/';
-
-        $sshClient = $this->getContainer()->get('seferov_deployer.ssh_client');
-        $sshClient->connect($server['connection']);
-        $sshClient->setOutput($output);
-
-        // Versioner
-        $versioner = new Versioner($versionsDir, $sshClient);
-        $previousVersion = $versioner->getPreviousVersion();
+        $previousVersion = $this->versioner->getPreviousVersion();
 
         // Symlink
-        $sshClient->exec(sprintf('rm %s/web', $server['connection']['path']));
-        $sshClient->exec(sprintf('ln -s %s/web %s', $versionsDir . $previousVersion, $server['connection']['path']));
-        $versioner->setNewVersion($previousVersion);
+        $this->sshClient->exec(sprintf('rm %s/web', $this->server['connection']['path']));
+        $this->sshClient->exec(sprintf('ln -s %s/web %s', $this->versionsDir . $previousVersion, $this->server['connection']['path']));
+        $this->versioner->setNewVersion($previousVersion);
 
-        $output->writeln('<comment>Successfully done!</comment>');
+        $this->output->writeln('<comment>Successfully done!</comment>');
     }
 }

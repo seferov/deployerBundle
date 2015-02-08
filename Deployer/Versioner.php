@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the SeferovDeployerBundle package.
+ *
+ * (c) Farhad Safarov <http://ferhad.in>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Seferov\DeployerBundle\Deployer;
 
 use Symfony\Component\Intl\Exception\RuntimeException;
@@ -7,6 +16,7 @@ use Symfony\Component\Intl\Exception\RuntimeException;
 /**
  * Class Versioner
  * @package Seferov\DeployerBundle\Deployer
+ * @author Farhad Safarov <http://ferhad.in>
  */
 class Versioner
 {
