@@ -46,8 +46,15 @@ class SshClient
             throw new \InvalidArgumentException(sprintf('SSH connection failed on "%s:%s"', $server['host'], $server['ssh_port']));
         }
 
-        if (!ssh2_auth_password($this->stream, $server['username'], $server['password'])) {
-            throw new \InvalidArgumentException(sprintf('SSH authentication failed for user "%s"', $server['username']));
+        if (array_key_exists('password', $server)) {
+            if (!ssh2_auth_password($this->stream, $server['username'], $server['password'])) {
+                throw new \InvalidArgumentException(sprintf('SSH authentication failed for user "%s"', $server['username']));
+            }
+        }
+        else {
+            if (!ssh2_auth_agent($this->stream, $server['username'])) {
+                throw new \InvalidArgumentException(sprintf('SSH connection failed on "%s" with username %s', $server['host'], $server['username']));
+            }
         }
 
         $this->shell = ssh2_shell($this->stream);
