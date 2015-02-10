@@ -16,6 +16,7 @@ use Seferov\DeployerBundle\Deployer\Versioner;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -69,6 +70,11 @@ abstract class BaseCommand extends ContainerAwareCommand
                 'server_name',
                 InputArgument::REQUIRED,
                 'Which server?'
+            )
+            ->addOption(
+                'force',
+                null,
+                InputOption::VALUE_NONE
             )
         ;
     }

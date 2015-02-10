@@ -37,14 +37,15 @@ class DeployCommand extends BaseCommand
     {
         // Download the project
         $this->sshClient->exec(sprintf('rm -rf %s', $this->versionsDir . 'ondeck/'));
-        $this->sshClient->exec(sprintf('git clone %s %s', $this->server['git'], $this->versionsDir . 'ondeck'));
+        $this->sshClient->exec(sprintf('yes | git clone %s %s', $this->server['git'], $this->versionsDir . 'ondeck'));
+        $this->output->writeln('<info>Application downloaded.</info>');
 
         // Versioner
         $version = $this->versioner->getAppVersion();
         $currentVersion = $this->versioner->getCurrentVersion();
 
         $this->output->writeln(sprintf('<comment>Version: %s</comment>', $version));
-        if ($version == $currentVersion) {
+        if ($version == $currentVersion && !$this->input->getOption('force')) {
             $this->output->writeln('<comment>You already have deployed the latest version.</comment>');
             return;
         }
@@ -57,7 +58,7 @@ class DeployCommand extends BaseCommand
         // Server parameters
         $this->sshClient->exec(sprintf('cp %s/config/parameters.yml %s/app/config/parameters.yml', $this->server['connection']['path'], $appDir));
 
-        if ($currentVersion) {
+        if ($currentVersion && !$this->input->getOption('force')) {
             // Copy previous versions vendor
             $this->sshClient->exec(sprintf('cp -rf %s/vendor %s/', $this->versionsDir . $currentVersion, $appDir));
         }
