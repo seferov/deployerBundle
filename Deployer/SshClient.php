@@ -61,6 +61,8 @@ class SshClient
         if (!$this->shell) {
             throw new \RuntimeException('Failed opening shell');
         }
+
+        $this->output->writeln('<info>Connected to the server</info>');
     }
 
     /**

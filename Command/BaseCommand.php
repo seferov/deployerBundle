@@ -97,8 +97,8 @@ abstract class BaseCommand extends ContainerAwareCommand
         $this->versionsDir = $this->server['connection']['path'].'/versions/';
 
         $this->sshClient = $this->getContainer()->get('seferov_deployer.ssh_client');
-        $this->sshClient->connect($this->server['connection']);
         $this->sshClient->setOutput($this->output);
+        $this->sshClient->connect($this->server['connection']);
 
         $this->versioner = new Versioner($this->versionsDir, $this->sshClient);
 

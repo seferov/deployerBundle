@@ -71,10 +71,13 @@ class DeployCommand extends BaseCommand
 
         // Move from ondeck to versioned folder
         $appDir = $this->versionsDir . $version;
+        if ($this->input->getOption('force')) {
+            $this->sshClient->exec(sprintf('rm -rf %s', $appDir));
+        }
         $this->sshClient->exec(sprintf('mv %s %s', $this->versionsDir . 'ondeck', $appDir));
 
         // Symlink
-        $this->sshClient->exec(sprintf('rm -f %s/web', $this->server['connection']['path']));
+        $this->sshClient->exec(sprintf('rm -rf %s/web', $this->server['connection']['path']));
         $this->sshClient->exec(sprintf('ln -s %s/web %s', $appDir, $this->server['connection']['path']));
         $this->versioner->setNewVersion($version);
     }

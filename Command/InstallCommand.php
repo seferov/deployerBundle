@@ -10,6 +10,7 @@
  */
 
 namespace Seferov\DeployerBundle\Command;
+use Seferov\DeployerBundle\Deployer\WebServer;
 
 /**
  * Class InstallCommand
@@ -40,6 +41,13 @@ class InstallCommand extends BaseCommand
         $this->sshClient->exec(sprintf('mkdir -p %s/config', $this->server['connection']['path']));
         $this->sshClient->upload($parametersFile, $this->server['connection']['path'] . '/config/parameters.yml');
 
+        // Install required dependencies
+        $this->installDependencies();
+
+        // Web Server
+        $webServer = new WebServer($this->sshClient, $this->server['connection']['path']);
+        $webServer->installApp();
+
         // Init versions
         $this->sshClient->exec(sprintf('mkdir -p %s/versions', $this->server['connection']['path']));
         $this->sshClient->exec(sprintf('touch %s/versions/versions.txt', $this->server['connection']['path']));
@@ -48,5 +56,20 @@ class InstallCommand extends BaseCommand
         $this->sshClient->exec('php -r "readfile(\'https://getcomposer.org/installer\');" | php && mv composer.phar /usr/local/bin/composer');
 
         $this->output->writeln('<comment>Deployer successfully installed on your server.</comment>');
+    }
+
+    /**
+     * Installs required dependencies: Git
+     */
+    private function installDependencies()
+    {
+        // Git
+        try {
+            $this->sshClient->exec('git -v');
+        }
+        catch (\Exception $e) {
+            $this->output->writeln('<info>Installing Git... Please wait...</info>');
+            $this->sshClient->exec('DEBIAN_FRONTEND=noninteractive && apt-get update && yes | apt-get install git --fix-missing');
+        }
     }
 }
