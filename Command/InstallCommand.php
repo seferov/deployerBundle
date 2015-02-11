@@ -36,6 +36,17 @@ class InstallCommand extends BaseCommand
      */
     protected function executeCommand()
     {
+        $this->sshClient->exec('export DEBIAN_FRONTEND="noninteractive"');
+
+        // Before install
+        if (array_key_exists('commands', $this->server) && array_key_exists('before_install', $this->server['commands'])) {
+            $commands = $this->server['commands']['before_install'];
+            foreach ($commands as $command) {
+                $this->output->writeln(sprintf('<info>Running %s</info>', $command));
+                $this->sshClient->exec(sprintf('yes | %s', $command));
+            }
+        }
+
         // Install config
         $parametersFile = $this->getContainer()->getParameter('kernel.root_dir') . '/config/parameters.yml';
         $this->sshClient->exec(sprintf('mkdir -p %s/config', $this->server['connection']['path']));
@@ -69,7 +80,7 @@ class InstallCommand extends BaseCommand
         }
         catch (\Exception $e) {
             $this->output->writeln('<info>Installing Git... Please wait...</info>');
-            $this->sshClient->exec('DEBIAN_FRONTEND=noninteractive && apt-get update && yes | apt-get install git --fix-missing');
+            $this->sshClient->exec('apt-get update && yes | apt-get install git --fix-missing');
         }
     }
 }

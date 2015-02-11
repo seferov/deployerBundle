@@ -80,5 +80,7 @@ class DeployCommand extends BaseCommand
         $this->sshClient->exec(sprintf('rm -rf %s/web', $this->server['connection']['path']));
         $this->sshClient->exec(sprintf('ln -s %s/web %s', $appDir, $this->server['connection']['path']));
         $this->versioner->setNewVersion($version);
+
+        $this->output->writeln('<comment>Your app successfully deployed!</comment>');
     }
 }
