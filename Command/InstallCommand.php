@@ -10,7 +10,12 @@
  */
 
 namespace Seferov\DeployerBundle\Command;
+
 use Seferov\DeployerBundle\Deployer\WebServer;
+use Symfony\Component\HttpKernel\Kernel;
+use Symfony\Component\Yaml\Dumper;
+use Symfony\Component\Yaml\Parser;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * Class InstallCommand
@@ -37,6 +42,7 @@ class InstallCommand extends BaseCommand
     protected function executeCommand()
     {
         $this->sshClient->exec('export DEBIAN_FRONTEND="noninteractive"');
+        $this->sshClient->exec('apt-get update');
 
         // Before install
         if (array_key_exists('commands', $this->server) && array_key_exists('before_install', $this->server['commands'])) {
@@ -47,10 +53,7 @@ class InstallCommand extends BaseCommand
             }
         }
 
-        // Install config
-        $parametersFile = $this->getContainer()->getParameter('kernel.root_dir') . '/config/parameters.yml';
-        $this->sshClient->exec(sprintf('mkdir -p %s/config', $this->server['connection']['path']));
-        $this->sshClient->upload($parametersFile, $this->server['connection']['path'] . '/config/parameters.yml');
+        $this->setParameters();
 
         // Install required dependencies
         $this->installDependencies();
@@ -70,6 +73,37 @@ class InstallCommand extends BaseCommand
     }
 
     /**
+     * Creates parameters for server
+     */
+    private function setParameters()
+    {
+        $this->output->writeln('<info>Please enter parameters for your server. Default values are presented.</info>');
+
+        $yaml = new Yaml();
+        $parameters = $yaml->parse(file_get_contents($this->getContainer()->getParameter('kernel.root_dir') . '/config/parameters.yml.dist'));
+
+        $serverParameters = [];
+        if (Kernel::VERSION < 2.5) {
+            $dialog = $this->getHelper('dialog');
+            foreach ($parameters['parameters'] as $key => $value) {
+                $serverParameters[$key] = $dialog->ask($this->output, sprintf('<question>%s</question> (<comment>%s</comment>): ', $key, $value), $value, [$value]);
+            }
+        }
+        else {
+            $questionHelper = $this->getHelper('question');
+            foreach ($parameters['parameters'] as $key => $value) {
+                $question = new \Symfony\Component\Console\Question\Question(sprintf('<question>%s</question> (<comment>%s</comment>): ', $key, $value), $value, [$value]);
+                $serverParameters[$key] = $questionHelper->ask($this->input, $this->output, $question);
+            }
+        }
+
+        $dumper = new Dumper();
+        $parametersYaml = $dumper->dump(['parameters' => $serverParameters], 2);
+        $this->sshClient->exec(sprintf('mkdir -p %s/config', $this->server['connection']['path']));
+        $this->sshClient->exec(sprintf('printf "%s" > %s/config/parameters.yml', $parametersYaml, $this->server['connection']['path']));
+    }
+
+    /**
      * Installs required dependencies: Git
      */
     private function installDependencies()
@@ -80,7 +114,7 @@ class InstallCommand extends BaseCommand
         }
         catch (\Exception $e) {
             $this->output->writeln('<info>Installing Git... Please wait...</info>');
-            $this->sshClient->exec('apt-get update && yes | apt-get install git --fix-missing');
+            $this->sshClient->exec('yes | apt-get install git --fix-missing');
         }
     }
 }
