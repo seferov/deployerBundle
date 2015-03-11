@@ -82,7 +82,7 @@ class SshClient
         $err = $this->removeEmptyLines(explode("\n", stream_get_contents($errStream)));
         if (count($err)) {
             if (strpos($err[0], 'Cloning into') === false) {
-                throw new \Exception(implode("\n", $err));
+                // throw new \Exception(implode("\n", $err));
             }
         }
 
