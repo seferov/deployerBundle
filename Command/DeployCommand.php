@@ -37,11 +37,11 @@ class DeployCommand extends BaseCommand
     {
         // Download the project
         $this->sshClient->exec(sprintf('rm -rf %s', $this->versionsDir . 'ondeck/'));
-        $this->sshClient->exec(sprintf('yes | git clone %s %s', $this->server['git'], $this->versionsDir . 'ondeck'));
+        $this->sshClient->exec(sprintf('yes | git clone -b %s %s %s', $this->server['git_branch'], $this->server['git'], $this->versionsDir . 'ondeck'));
         $this->output->writeln('<info>Application downloaded.</info>');
 
         // Versioner
-        $version = $this->versioner->getAppVersion();
+        $version = $this->versioner->getAppVersion($this->server['git_branch']);
         $currentVersion = $this->versioner->getCurrentVersion();
 
         $this->output->writeln(sprintf('<comment>Version: %s</comment>', $version));
@@ -53,7 +53,7 @@ class DeployCommand extends BaseCommand
         $appDir = $this->versionsDir . 'ondeck';
 
         // Make cache and log folders writable
-        $this->sshClient->exec(sprintf('cd %s && chmod 777 -R app/cache app/logs', $appDir));
+        $this->sshClient->exec(sprintf('cd %s && mkdir -p app/cache app/logs && chmod 777 -R app/cache app/logs', $appDir));
 
         // Server parameters
         $this->sshClient->exec(sprintf('cp %s/config/parameters.yml %s/app/config/parameters.yml', $this->server['connection']['path'], $appDir));

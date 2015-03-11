@@ -45,10 +45,10 @@ class Versioner
      * @return mixed
      * @throws \Exception
      */
-    public function getAppVersion()
+    public function getAppVersion($branch = 'master')
     {
         try {
-            $out = $this->sshClient->exec("tail '{$this->path}ondeck/.git/refs/heads/master'");
+            $out = $this->sshClient->exec("tail '{$this->path}ondeck/.git/refs/heads/{$branch}'");
         }
         catch (\Exception $e) {
             throw new RuntimeException('Please make sure you have the correct Git access rights and the repository exists.');
