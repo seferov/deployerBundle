@@ -43,7 +43,6 @@ class Configuration implements ConfigurationInterface
                             ->scalarNode('git_branch')
                                 ->defaultValue('master')
                                 ->cannotBeEmpty()
-                                ->isRequired()
                             ->end()
                             ->arrayNode('commands')
                                 ->children()
