@@ -35,6 +35,23 @@ class DeployCommand extends BaseCommand
      */
     protected function executeCommand()
     {
+        if ('Fri' == date('D')) {
+            $this->output->writeln('
+┓┏┓┏┓┃
+┛┗┛┗┛┃＼○／
+┓┏┓┏┓┃ /     Friday
+┛┗┛┗┛┃ノ)
+┓┏┓┏┓┃       Deploys
+┛┗┛┗┛┃
+┓┏┓┏┓┃
+┛┗┛┗┛┃
+┓┏┓┏┓┃
+┃┃┃┃┃┃
+┻┻┻┻┻┻
+            ');
+            // credits: https://twitter.com/davidwalshblog/status/507920632432975872
+        }
+
         // Download the project
         $this->sshClient->exec(sprintf('rm -rf %s', $this->versionsDir . 'ondeck/'));
         $this->sshClient->exec(sprintf('yes | git clone -b %s %s %s', $this->server['git_branch'], $this->server['git'], $this->versionsDir . 'ondeck'));
