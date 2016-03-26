@@ -13,7 +13,7 @@
   "minimum-stability": "dev",
   "require": {
     "php": ">=5.4",
-    "symfony/symfony": "~2.1"
+    "symfony/symfony": "~2.1|~3.0"
   },
   "autoload": {
     "psr-4": {
