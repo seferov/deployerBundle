@@ -1,8 +1,8 @@
 {
   "name": "seferov/deployer-bundle",
   "type": "symfony-bundle",
-  "description": "Symfony2 Project Deployer",
-  "keywords": ["symfony2", "deployer", "deploy", "deployment"],
+  "description": "Symfony Project Deployer",
+  "keywords": ["symfony", "deployer", "deploy", "deployment"],
   "license": "MIT",
   "authors": [
     {
