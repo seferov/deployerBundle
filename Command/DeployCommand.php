@@ -10,6 +10,7 @@
  */
 
 namespace Seferov\DeployerBundle\Command;
+use Symfony\Component\HttpKernel\Kernel;
 
 /**
  * Class DeployCommand
@@ -70,7 +71,11 @@ class DeployCommand extends BaseCommand
         $appDir = $this->versionsDir . 'ondeck';
 
         // Make cache and log folders writable
-        $this->sshClient->exec(sprintf('cd %s && mkdir -p app/cache app/logs && chmod 777 -R app/cache app/logs', $appDir));
+        if (Kernel::VERSION < 3) {
+            $this->sshClient->exec(sprintf('cd %s && mkdir -p app/cache app/logs && chmod 777 -R app/cache app/logs', $appDir));
+        } else {
+            $this->sshClient->exec(sprintf('cd %s && mkdir -p var/cache var/logs && chmod 777 -R var/cache var/logs', $appDir));
+        }
 
         // Server parameters
         $this->sshClient->exec(sprintf('cp %s/config/parameters.yml %s/app/config/parameters.yml', $this->server['connection']['path'], $appDir));
