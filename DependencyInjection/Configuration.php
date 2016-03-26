@@ -53,7 +53,7 @@ class Configuration implements ConfigurationInterface
                             ->arrayNode('connection')
                                 ->children()
                                     ->scalarNode('host')->isRequired()->end()
-                                    ->integerNode('port')->cannotBeEmpty()->defaultValue(22)->end()
+                                    ->integerNode('port')->defaultValue(22)->end()
                                     ->scalarNode('username')->defaultValue('root')->end()
                                     ->scalarNode('password')->end()
                                     ->scalarNode('path')->defaultValue('/var/www')->end()
